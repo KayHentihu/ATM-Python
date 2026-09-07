@@ -57,7 +57,53 @@ def ganti_pin(pin):
         
     return pin
     
-def menu_atm(saldo, pin, nama):
+    
+def transfer(rekening, saldo, data_baris):
+    print("\n===== TRANSFER =====")
+    rekening_tujuan = input("\nMasukkan rekening tujuan: ")
+    
+    if rekening == rekening_tujuan:
+        print("\nTidak dapat melakukan transfer ke rekening sendiri")
+        return saldo
+    
+    rekening_ditemukan = False
+    
+    for i, baris in enumerate(data_baris):
+        baris = baris.split("|")
+        rekening_penerima = baris[0]
+        
+        if rekening_tujuan == rekening_penerima:
+            print("\nRekening ditemukan!")
+            rekening_ditemukan = True
+            
+            saldo_penerima = int(baris[3])
+            
+            try:
+                jumlah_transfer = int(input("Masukkan jumlah transfer: "))
+            except ValueError:
+                print("\nInput harus berupa angka!")
+                return saldo
+                
+            if jumlah_transfer > saldo:
+                print("\nMaaf saldo tidak cukup!")
+            elif jumlah_transfer <= 0:
+                print("\nJumlah transfer harus lebih dari 0!")
+            else:
+                saldo -= jumlah_transfer
+                saldo_penerima += jumlah_transfer
+                baris[3] = str(saldo_penerima)
+                data_baris[i] = "|".join(baris)
+                
+                print(f"\nBerhasil transfer RP.{jumlah_transfer} ke Norek: {rekening_penerima}")
+            
+    if not rekening_ditemukan:
+        print("\nRekening tujuan tidak ditemukan!")            
+        
+    return saldo
+                
+    
+    
+def menu_atm(saldo, pin, nama,rekening, data_baris):
     ulang = True
     
     while ulang:
@@ -71,10 +117,11 @@ def menu_atm(saldo, pin, nama):
         print("| 2. Setor Tunai     |")
         print("| 3. Tarik Tunai     |")
         print("| 4. Ganti PIN       |")
+        print("| 5. Transfer        |")
         print("| 0. Keluar          |")
         print("+--------------------+")
         
-        pilih = input("Pilih menu (0-4): ")
+        pilih = input("Pilih menu (0-5): ")
         
         match pilih:
             case "1":
@@ -88,6 +135,9 @@ def menu_atm(saldo, pin, nama):
                 pause()
             case "4":
                 pin = ganti_pin(pin)
+                pause()
+            case "5":
+                saldo = transfer(rekening, saldo, data_baris)
                 pause()
             case "0":
                 print("Program selesai, Terima kasih!!!")
@@ -128,7 +178,7 @@ while not rekening_valid:
                 if pin_input == pin:
                     pin_valid = True
                     os.system("cls")
-                    saldo, pin = menu_atm(saldo, pin, nama)
+                    saldo, pin = menu_atm(saldo, pin, nama, rekening, data_baris)
                     baris[1] = pin
                     baris[3] = str(saldo)
                     
