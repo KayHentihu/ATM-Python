@@ -1,31 +1,69 @@
+import os
+
+def pause():
+    input("\nTekan ENTER untuk melanjutkan...")
+    os.system("cls")
+    
 def cek_saldo(saldo):
-    print(f"Saldo anda: Rp.{saldo}")
+    print("\n===== CEK SALDO =====")
+    print(f"\nSaldo anda: Rp.{saldo}")
 
 def setor_tunai(saldo):
-    jumlah = int(input("Masukkan jumlah setor: "))
-    saldo += jumlah
+    print("\n===== SETOR TUNAI =====")
+    
+    try:
+        jumlah = int(input("\nMasukkan jumlah setor: "))
+        if jumlah > 0:
+            saldo += jumlah
+            print("\nSetor tunai berhasil!")
+            print(f"\nSaldo baru : Rp.{saldo}")
+            return saldo
+        else:
+            print("\nTidak dapat melakukan setor!")
+    except ValueError:
+        print("\nInput harus berupa angka")
+        
     return saldo
 
 def tarik_tunai(saldo):
-    tarik = int(input("Masukkan jumlah tarik: "))
-    if tarik > saldo:
-        print("Saldo tidak mencukupi!")
-    else:
-        saldo -= tarik
-        print(f"Saldo baru: Rp.{saldo}")
-        
+    print("\n===== TARIK TUNAI =====")
+    
+    try:
+        tarik = int(input("\nMasukkan jumlah tarik: "))
+        if tarik > saldo:
+            print("\nSaldo tidak mencukupi!")
+        elif tarik <= 0:
+            print("\nTidak dapat melakukan penarikan!")
+        else:
+            saldo -= tarik
+            print("\nTarik tunai berhasil!")
+            print(f"Saldo baru: Rp.{saldo}")
+    except ValueError:
+        print("\nInput harus berupa angka")
+            
     return saldo
     
 def ganti_pin(pin):
-    pin_baru = input("Masukkan PIN baru: ")
-    pin = pin_baru 
-    print("PIN baru berhasil disimpan!!")
+    print("\n===== GANTI PIN =====")
+    pin_baru = input("\nMasukkan PIN baru: ")
+    
+    if len(pin_baru) != 4:    
+        print("\nPIN harus terdiri dari 4 digit!")
+    elif not pin_baru.isdigit():
+        print("\nPIN harus berupa angka!")
+    else:
+        print("PIN baru berhasil disimpan!!")
+        pin = pin_baru 
+        
     return pin
     
-def menu_atm(saldo, pin):
+def menu_atm(saldo, pin, nama):
     ulang = True
     
     while ulang:
+        print(f"\nSelamat datang {nama}!")
+        print("Silahkan pilih transaksi\n")
+        
         print("+====================+")
         print("|         ATM        |")
         print("+====================+")
@@ -41,20 +79,25 @@ def menu_atm(saldo, pin):
         match pilih:
             case "1":
                 cek_saldo(saldo)
+                pause()
             case "2":
                 saldo = setor_tunai(saldo)
+                pause()
             case "3":
                 saldo = tarik_tunai(saldo)
+                pause()
             case "4":
                 pin = ganti_pin(pin)
+                pause()
             case "0":
                 print("Program selesai, Terima kasih!!!")
                 ulang = False
                 return saldo, pin
             case _:
                 print("Input tidak valid, coba lagi")
+                pause()
         
-
+    
 
 file = open("data.txt", "r")
 
@@ -62,44 +105,54 @@ data = file.read()
 data_baris = data.split("\n")
 file.close()
 
-rekening_input = input("Masukkan nomor rekening: ")
-
 rekening_valid = False
 pin_valid = False
 
-for i, baris in enumerate(data_baris) :
-    baris = baris.split("|")
+while not rekening_valid:
+    rekening_input = input("\nMasukkan nomor rekening: ")
 
-    rekening = baris[0]
-    pin = baris[1]
-    nama = baris[2]
-    saldo = int(baris[3])
-    
-    if rekening_input == rekening:
-        rekening_valid = True
+    for i, baris in enumerate(data_baris) :
+        baris = baris.split("|")
+
+        rekening = baris[0]
+        pin = baris[1]
+        nama = baris[2]
+        saldo = int(baris[3])
         
-        while not pin_valid:
-            pin_input = input("Masukkan PIN anda: ")
-            if pin_input == pin:
-                pin_valid = True
-                print(f"Selamat datang {nama}")
-                saldo, pin = menu_atm(saldo, pin)
-                baris[1] = pin
-                baris[3] = str(saldo)
-                
-                baris = "|".join(baris)
-                data_baris[i] = baris
-                
-                data_baru = "\n".join(data_baris)
-                
-                file = open("data.txt", "w")
-                file.write(data_baru)
-                file.close()
-            else:
-                print("PIN salah coba lagi")
-        break
+        if rekening_input == rekening:
+            rekening_valid = True
+            
+            percobaan = 3
+            while not pin_valid:
+                pin_input = input("\nMasukkan PIN anda: ")
+                if pin_input == pin:
+                    pin_valid = True
+                    os.system("cls")
+                    saldo, pin = menu_atm(saldo, pin, nama)
+                    baris[1] = pin
+                    baris[3] = str(saldo)
+                    
+                    baris = "|".join(baris)
+                    data_baris[i] = baris
+                    
+                    data_baru = "\n".join(data_baris)
+                    
+                    file = open("data.txt", "w")
+                    file.write(data_baru)
+                    file.close()
+                else:
+                    percobaan -= 1
+                    
+                    if percobaan == 0:
+                        print("\nMAAF PROGRAM DIHENTIKAN PAKSA!!")
+                        break
+                    else:
+                        print("\nPIN salah coba lagi")
+                        print(f"Sisa {percobaan} percobaan!!")
+            break
+    if not rekening_valid:
+        print("\nError nomor rekening tidak ditemukan")
+        pause()
     
     
-if not rekening_valid:
-    print(f"Error nomor rekening tidak ditemukan")
     
