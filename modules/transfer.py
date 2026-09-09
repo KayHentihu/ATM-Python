@@ -35,7 +35,8 @@ def transfer(rekening, saldo, data_baris):
                 saldo_penerima += jumlah_transfer
                 baris[3] = str(saldo_penerima)
                 data_baris[i] = "|".join(baris)
-                catat_transaksi(rekening, "TRANSFER", jumlah_transfer, rekening_tujuan)
+                catat_transaksi("KELUAR", rekening, "TRANSFER", jumlah_transfer, rekening_tujuan)
+                catat_transaksi("MASUK", rekening_penerima, "TRANSFER", jumlah_transfer, rekening)
                 
                 print(f"\nBerhasil transfer RP.{jumlah_transfer} ke Norek: {rekening_penerima}")
             

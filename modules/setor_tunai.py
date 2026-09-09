@@ -8,7 +8,7 @@ def setor_tunai(saldo, rekening):
         if jumlah > 0:
             saldo += jumlah
             
-            catat_transaksi(rekening, "SETOR", jumlah)
+            catat_transaksi("MASUK", rekening, "SETOR", jumlah)
             
             print("\nSetor tunai berhasil!")
             print(f"\nSaldo baru : Rp.{saldo}")
