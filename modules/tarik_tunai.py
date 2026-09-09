@@ -12,7 +12,7 @@ def tarik_tunai(saldo, rekening):
         else:
             saldo -= tarik
             
-            catat_transaksi(rekening, "TARIK", tarik)
+            catat_transaksi("KELUAR", rekening, "TARIK", tarik)
             
             print("\nTarik tunai berhasil!")
             print(f"Saldo baru: Rp.{saldo}")
